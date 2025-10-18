@@ -3,6 +3,9 @@
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMotor3D : MonoBehaviour
 {
+    [Header("Control")]
+    public bool inputEnabled = true;   // ← habilita/deshabilita input
+
     [Header("Movimiento")]
     public float moveSpeed = 5f;
     public float sprintMultiplier = 1.6f;
@@ -26,6 +29,21 @@ public class PlayerMotor3D : MonoBehaviour
 
     void Update()
     {
+        // Si el control está deshabilitado (p.ej. puzzle abierto),
+        // mantenemos al player “pegado” al suelo y sin mover/rotar.
+        if (!inputEnabled)
+        {
+            // Fijar leve empuje hacia abajo para mantener grounded con CC
+            if (controller.isGrounded && velocity.y < 0f)
+                velocity.y = -2f;
+            else
+                velocity.y += gravity * Time.deltaTime;
+
+            // Solo aplicamos la componente vertical (mínima)
+            controller.Move(new Vector3(0f, velocity.y, 0f) * Time.deltaTime);
+            return;
+        }
+
         // Suelo con CharacterController
         bool isGrounded = controller.isGrounded;
         if (isGrounded && velocity.y < 0f) velocity.y = -2f;
@@ -44,7 +62,7 @@ public class PlayerMotor3D : MonoBehaviour
         // Velocidad
         float speed = moveSpeed * (Input.GetKey(KeyCode.LeftShift) ? sprintMultiplier : 1f);
 
-        // Movimiento XZ
+        // Movimiento XZ + rotación hacia la dirección de avance
         if (moveDir.sqrMagnitude > 0.0001f)
         {
             controller.Move(moveDir * (speed * Time.deltaTime));
@@ -59,5 +77,17 @@ public class PlayerMotor3D : MonoBehaviour
         // Gravedad
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+    }
+
+    // Útil si prefieres no tocar la variable directamente
+    public void SetInputEnabled(bool enabled)
+    {
+        inputEnabled = enabled;
+        if (enabled == false)
+        {
+            // Reinicia horizontal y estabiliza vertical cuando se bloquea
+            velocity.x = 0f;
+            velocity.z = 0f;
+        }
     }
 }
