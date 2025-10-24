@@ -77,11 +77,12 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
         if (on && solvedSfx) solvedSfx.Play();
     }
 
-    private void UpdateVisual()
+    public void UpdateVisual()
     {
         if (!rend) return;
         rend.GetPropertyBlock(mpb);
         mpb.SetColor("_Color", isOn ? onColor : offColor);
         rend.SetPropertyBlock(mpb);
     }
+
 }
