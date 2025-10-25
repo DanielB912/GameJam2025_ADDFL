@@ -26,6 +26,10 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
     private MaterialPropertyBlock mpb;
     private PlayerMotor3D player;
 
+    // --- NEW: acceso de solo lectura al estado + evento de toggle ---
+    public bool IsOn => isOn; // NEW
+    public event System.Action<EnergyNodeInteractable, bool> OnNodeToggled; // NEW
+
     void Awake()
     {
         rend = GetComponent<Renderer>();
@@ -58,17 +62,25 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
         }
 
         // Si NO hay puzzle: modo toggle simple (como tu versión temporal)
-        isOn = !isOn;
-        ApplySolvedEffectsIfNeeded(isOn);
-        UpdateVisual();
+        // --- NEW: centralizamos el cambio para notificar ---
+        SetState(!isOn); // NEW
     }
 
     private void OnPuzzleSolved()
     {
-        isOn = true;
-        ApplySolvedEffectsIfNeeded(true);
-        UpdateVisual();
+        // --- NEW: usar SetState para notificar ---
+        SetState(true);   // NEW
         onSolved?.Invoke();
+    }
+
+    // --- NEW: punto único para cambiar estado + notificar ---
+    private void SetState(bool on) // NEW
+    {
+        if (isOn == on) return;
+        isOn = on;
+        ApplySolvedEffectsIfNeeded(on);
+        UpdateVisual();
+        OnNodeToggled?.Invoke(this, isOn); // notifica a quien escuche (PortalLock, UI, etc.)
     }
 
     private void ApplySolvedEffectsIfNeeded(bool on)
