@@ -2,16 +2,20 @@
 
 public class EnemyPatrol : MonoBehaviour
 {
-    [Header("Movement")]
+    [Header("Movimiento")]
     public float speed = 2f;
     public float distance = 3f;
-    public bool horizontal = true;      // X if true, Z if false
+    public bool horizontal = true;
 
-    [Header("Visual Rotation")]
-    public Transform model;             // drag the mesh/child here
-    public float yawRight = 90f;
-    public float yawLeft = -90f;
+    [Header("Giro visual")]
+    public Transform model;
+    public float yawDerecha = 90f;
+    public float yawIzquierda = -90f;
     public bool flipOnTurn = true;
+
+    // 🆕 NUEVO: referencia opcional al hitbox
+    [Header("Hitbox (opcional)")]
+    public EnemyHitbox hitbox;  // arrástralo o se autolocaliza
 
     private Vector3 startPos;
     private int direction = 1;
@@ -19,8 +23,16 @@ public class EnemyPatrol : MonoBehaviour
     void Start()
     {
         startPos = transform.position;
-        if (!model) model = transform; // fallback
-        ApplyRotation(); // initial facing
+        if (!model) model = transform;
+
+        // 🆕 Intentar conectar hitbox automáticamente
+        if (!hitbox)
+            hitbox = GetComponentInChildren<EnemyHitbox>(true);
+
+        if (hitbox)
+            hitbox.owner = this;
+
+        AplicarGiro();
     }
 
     void Update()
@@ -28,31 +40,20 @@ public class EnemyPatrol : MonoBehaviour
         Vector3 delta = (horizontal ? Vector3.right : Vector3.forward) * direction * speed * Time.deltaTime;
         transform.position += delta;
 
-        float offset = horizontal ? (transform.position.x - startPos.x)
-                                  : (transform.position.z - startPos.z);
+        float desplazamiento = horizontal ? (transform.position.x - startPos.x)
+                                          : (transform.position.z - startPos.z);
 
-        if (Mathf.Abs(offset) >= distance)
+        if (Mathf.Abs(desplazamiento) >= distance)
         {
             direction *= -1;
-            ApplyRotation();
+            AplicarGiro();
         }
     }
 
-    void ApplyRotation()
+    void AplicarGiro()
     {
         if (!flipOnTurn || !model) return;
-        float yaw = (direction > 0) ? yawRight : yawLeft;
+        float yaw = (direction > 0) ? yawDerecha : yawIzquierda;
         model.rotation = Quaternion.Euler(0f, yaw, 0f);
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            // ⚠️ Damage player here in the future:
-            // other.GetComponent<PlayerHealth>()?.TakeDamage(damageAmount);
-
-            Destroy(gameObject); // destroy this enemy
-        }
     }
 }

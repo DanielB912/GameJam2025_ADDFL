@@ -33,7 +33,12 @@ public class KeypadPuzzle : MonoBehaviour
     private string _targetCode;
     private StringBuilder _input = new StringBuilder();
     private bool _open;
+    private EnergyNodeInteractable targetNode;
 
+    public void SetTargetNode(EnergyNodeInteractable node)
+    {
+        targetNode = node;
+    }
     void Awake()
     {
         AutoBindIfEmpty();
@@ -112,8 +117,18 @@ public class KeypadPuzzle : MonoBehaviour
         if (_input.ToString() == _targetCode)
         {
             SetStatus("<color=#6CFF8B>Correcto</color>");
+
+            // Si hay un nodo, lo activamos
+            if (targetNode)
+            {
+                // Usamos reflexión para llamar SetState(true)
+                var method = targetNode.GetType().GetMethod("SetState", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                method?.Invoke(targetNode, new object[] { true });
+            }
+
             Close(true);
         }
+
         else
         {
             Fail("Código incorrecto");

@@ -65,6 +65,9 @@ MonoBehaviour:
     volume: 0.481
   - sceneName: EndScene
     clip: {fileID: 8300000, guid: eb532c18da629f7418cb1f7df3b26dab, type: 3}
+    volume: 0.483
+  - sceneName: Tutorial
+    clip: {fileID: 8300000, guid: 8461dfb66621f024f955d1262ae4da1c, type: 3}
     volume: 0.585
   masterVolume: 1
   crossfadeSeconds: 1.5

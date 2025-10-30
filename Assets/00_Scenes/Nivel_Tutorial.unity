@@ -266,7 +266,7 @@ GameObject:
   - component: {fileID: 37085351}
   - component: {fileID: 37085350}
   m_Layer: 0
-  m_Name: Portal
+  m_Name: Portal (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -666,7 +666,7 @@ Transform:
   m_GameObject: {fileID: 342225421}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.8, y: 5.3, z: -8.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -843,7 +843,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4228499182647149175, guid: e627b24490bce11478dee66c1b10b85f, type: 3}
       propertyPath: m_Name
-      value: ScreenFade
+      value: ScreenFade (1)
       objectReference: {fileID: 0}
     - target: {fileID: 5934295051713509055, guid: e627b24490bce11478dee66c1b10b85f, type: 3}
       propertyPath: m_Pivot.x
@@ -6704,8 +6704,8 @@ MonoBehaviour:
   fadeOutTime: 0.5
   fadeInTime: 0.5
   waitBlackSeconds: 0.3
-  checkInterval: 1
-  fallThresholdExtra: 10
+  checkInterval: 0.2
+  fallThresholdExtra: 0.5
   autoDetectBounds: 1
 --- !u!1 &2023632792
 GameObject:
