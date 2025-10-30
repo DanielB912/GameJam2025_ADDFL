@@ -15,6 +15,8 @@ public class ReactorAlignPuzzle : MonoBehaviour
         [HideInInspector] public float holdTimer;
         [HideInInspector] public float noiseSeed;
     }
+    private EnergyNodeInteractable targetNode;
+
 
     [Header("UI")]
     public Channel[] channels;
@@ -167,7 +169,10 @@ public class ReactorAlignPuzzle : MonoBehaviour
         OnSolved?.Invoke();
         Destroy(gameObject);
     }
-
+    public void SetTargetNode(EnergyNodeInteractable node)
+    {
+        targetNode = node;
+    }
     void Close(bool solved)
     {
         _running = false;

@@ -266,7 +266,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   keypadPrefab: {fileID: 1537922228262122831, guid: 784e48b777eafa94f9d4aa8498d4c41c, type: 3}
-  targetNode: {fileID: 0}
+  targetNode: {fileID: 2065987883}
 --- !u!1 &199772590
 GameObject:
   m_ObjectHideFlags: 0

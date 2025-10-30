@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class KeypadInteractable : MonoBehaviour, IInteractable
 {
@@ -12,7 +12,7 @@ public class KeypadInteractable : MonoBehaviour, IInteractable
 
     public string GetPrompt()
     {
-        return _busy ? "" : "Activar nodo de energ�a";
+        return _busy ? "" : "Activar nodo de energía";
     }
 
     public void Interact()
@@ -22,6 +22,10 @@ public class KeypadInteractable : MonoBehaviour, IInteractable
 
         var ui = Instantiate(keypadPrefab); // Canvas Overlay
         var keypad = ui.GetComponentInChildren<KeypadPuzzle>(true);
+
+        // 👉 Le pasamos el nodo actual al puzzle
+        if (targetNode != null)
+            keypad.SetTargetNode(targetNode);
 
         keypad.OnSolved = () =>
         {
