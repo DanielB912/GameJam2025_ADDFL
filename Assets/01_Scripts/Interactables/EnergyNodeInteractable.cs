@@ -1,92 +1,140 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.Events;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Renderer))]
 public class EnergyNodeInteractable : MonoBehaviour, IInteractable
 {
     [Header("Texto")]
-    [TextArea] public string prompt = "Activar nodo de energía";
+    [TextArea] public string prompt = "Activar nodo de energÃ­a";
 
     [Header("Puzzle (opcional)")]
-    public CablePuzzleController puzzle;      // Si lo asignas, se abrirá y al resolver se encenderá
-    public bool oneShot = true;               // Si true, una vez encendido no se puede apagar
+    public CablePuzzleController puzzle;
+    public bool oneShot = true;
 
-    [Header("Feedback")]
-    public Light linkedLight;
+    [Header("Feedback visual y sonoro")]
+    public Light linkedLight;                     // Luz principal
+    public List<Light> linkedLightsExtra = new(); // âœ… Varias luces adicionales
+    public List<Renderer> linkedRenderers = new(); // âœ… Opcional, para materiales con emisiÃ³n
     public Color offColor = Color.gray;
     public Color onColor = new Color(0.2f, 0.8f, 1f);
-    public AudioSource solvedSfx;
-    public UnityEvent onSolved;               // eventos extra al resolver (abrir puerta, etc.)
+    public AudioClip solvedClip;                 // âœ… Clip directo
+    public UnityEvent onSolved;                  // Eventos extra (abrir puertas, etc.)
 
     [Header("Estado")]
-    [SerializeField] private bool isOn = false;   // queda encendido al resolver
+    [SerializeField] private bool isOn = false;
 
     // Cache
     private Renderer rend;
     private MaterialPropertyBlock mpb;
     private PlayerMotor3D player;
+    private AudioSource audioSrc;
 
-    // --- NEW: acceso de solo lectura al estado + evento de toggle ---
-    public bool IsOn => isOn; // NEW
-    public event System.Action<EnergyNodeInteractable, bool> OnNodeToggled; // NEW
+    public bool IsOn => isOn;
+    public event System.Action<EnergyNodeInteractable, bool> OnNodeToggled;
 
     void Awake()
     {
         rend = GetComponent<Renderer>();
         mpb = new MaterialPropertyBlock();
-        player = FindObjectOfType<PlayerMotor3D>(); // opcional
+        player = FindObjectOfType<PlayerMotor3D>();
+        audioSrc = gameObject.AddComponent<AudioSource>();
+        audioSrc.playOnAwake = false;
+        audioSrc.spatialBlend = 0.5f;
+
+        if (!linkedLight)
+            linkedLight = GetComponentInChildren<Light>(true);
+
         UpdateVisual();
     }
 
     public string GetPrompt()
     {
-        // Si ya quedó encendido y es oneShot, no mostramos prompt (no hay nada que hacer)
         if (oneShot && isOn) return "";
-        // Si hay puzzle, guiamos al jugador
         if (puzzle && !isOn) return "Iniciar puzzle";
-        // Modo toggle simple (sin puzzle) o permitir apagar si oneShot == false
-        return isOn ? "E — Apagar nodo" : prompt;
+        return isOn ? "E â€” Apagar nodo" : prompt;
     }
 
     public void Interact()
     {
-        // Si ya está encendido y es de un solo uso, no hacemos nada
         if (oneShot && isOn) return;
 
-        // Si hay puzzle: abrirlo y esperar callback
         if (puzzle)
         {
             if (!player) player = FindObjectOfType<PlayerMotor3D>();
             puzzle.Open(player, OnPuzzleSolved);
-            return;
         }
-
-        // Si NO hay puzzle: modo toggle simple (como tu versión temporal)
-        // --- NEW: centralizamos el cambio para notificar ---
-        SetState(!isOn); // NEW
+        else
+        {
+            Debug.Log("[EnergyNode] Activado directamente (sin puzzle)");
+            OnPuzzleSolved();
+        }
     }
 
     private void OnPuzzleSolved()
     {
-        // --- NEW: usar SetState para notificar ---
-        SetState(true);   // NEW
+        Debug.Log("[EnergyNode] Puzzle solved â€” ejecutando efectos.");
+        SetState(true);
         onSolved?.Invoke();
     }
 
-    // --- NEW: punto único para cambiar estado + notificar ---
-    private void SetState(bool on) // NEW
+    private void SetState(bool on)
     {
-        if (isOn == on) return;
+        // âœ… Evita apagado: solo se puede activar, nunca desactivar
+        if (isOn && !on) return;
+
         isOn = on;
         ApplySolvedEffectsIfNeeded(on);
         UpdateVisual();
-        OnNodeToggled?.Invoke(this, isOn); // notifica a quien escuche (PortalLock, UI, etc.)
+        OnNodeToggled?.Invoke(this, isOn);
     }
 
     private void ApplySolvedEffectsIfNeeded(bool on)
     {
-        if (linkedLight) linkedLight.enabled = on;
-        if (on && solvedSfx) solvedSfx.Play();
+        // ðŸ”¹ Luz principal
+        if (linkedLight)
+        {
+            if (on) linkedLight.enabled = true; // nunca la apaga
+            var fade = linkedLight.GetComponentInParent<LightFadeIn>();
+            if (on && fade) fade.TurnOn();
+        }
+
+        // ðŸ”¹ Luces adicionales
+        if (linkedLightsExtra != null && linkedLightsExtra.Count > 0)
+        {
+            foreach (var l in linkedLightsExtra)
+            {
+                if (!l) continue;
+                if (on) l.enabled = true; // nunca las apaga
+
+                var fade = l.GetComponentInParent<LightFadeIn>();
+                if (on && fade) fade.TurnOn();
+            }
+        }
+
+        // ðŸ”¹ Materiales emisivos (opcional)
+        /*
+        if (linkedRenderers != null && linkedRenderers.Count > 0)
+        {
+            foreach (var r in linkedRenderers)
+            {
+                if (!r) continue;
+                var mats = r.materials;
+                foreach (var m in mats)
+                {
+                    if (m.HasProperty("_EmissionColor"))
+                    {
+                        m.EnableKeyword("_EMISSION");
+                        m.SetColor("_EmissionColor", on ? onColor * 2f : Color.black);
+                    }
+                }
+            }
+        }
+        */
+
+        // ðŸ”¹ Sonido
+        if (on && solvedClip)
+            audioSrc.PlayOneShot(solvedClip);
     }
 
     public void UpdateVisual()
@@ -96,5 +144,4 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
         mpb.SetColor("_Color", isOn ? onColor : offColor);
         rend.SetPropertyBlock(mpb);
     }
-
 }
