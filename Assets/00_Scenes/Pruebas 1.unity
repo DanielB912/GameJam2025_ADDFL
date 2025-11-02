@@ -179,9 +179,11 @@ MonoBehaviour:
   puzzle: {fileID: 541256162}
   oneShot: 1
   linkedLight: {fileID: 695016727}
+  linkedLightsExtra: []
+  linkedRenderers: []
   offColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   onColor: {r: 0.2, g: 0.8, b: 1, a: 1}
-  solvedSfx: {fileID: 0}
+  solvedClip: {fileID: 0}
   onSolved:
     m_PersistentCalls:
       m_Calls: []
