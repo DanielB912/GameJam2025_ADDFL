@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class ReactorAlignPuzzle : MonoBehaviour
+public class ReactorAlignPuzzle : MonoBehaviour, IPuzzle
 {
     [Serializable]
     public class Channel
@@ -49,8 +49,9 @@ public class ReactorAlignPuzzle : MonoBehaviour
     public bool pauseGameTime = true;
     public bool showCursor = true;
 
-    public Action OnSolved;
-    public Action OnClosed;
+    public Action OnSolved { get; set; }
+    public Action OnClosed { get; set; }
+
 
     bool _running;
 
@@ -179,4 +180,12 @@ public class ReactorAlignPuzzle : MonoBehaviour
         if (solved) OnSolved?.Invoke(); else OnClosed?.Invoke();
         Destroy(gameObject);
     }
+    public void Open()
+    {
+        gameObject.SetActive(true);
+        Time.timeScale = 0f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
 }

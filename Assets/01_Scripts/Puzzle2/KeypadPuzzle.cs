@@ -4,9 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class KeypadPuzzle : MonoBehaviour
+public class KeypadPuzzle : MonoBehaviour, IPuzzle
 {
+
     [Header("Referencias UI")]
+    public Canvas canvas; // 🔹 nuevo campo
     public TextMeshProUGUI targetCodeText; // muestra el código correcto
     public TextMeshProUGUI inputText;      // lo que el jugador ingresa
     public TextMeshProUGUI statusText;     // muestra “Correcto / Incorrecto”
@@ -26,8 +28,8 @@ public class KeypadPuzzle : MonoBehaviour
     public bool showCursor = true;
 
     // Eventos
-    public Action OnSolved;
-    public Action OnClosed;
+    public Action OnSolved { get; set; }
+    public Action OnClosed { get; set; }
 
     // Internos
     private string _targetCode;
@@ -61,9 +63,14 @@ public class KeypadPuzzle : MonoBehaviour
         _input.Clear();
         RefreshUI();
         SetStatus("");
+
+        if (canvas) canvas.gameObject.SetActive(true); // 🔹 ACTIVAR UI
         if (pauseGameTime) Time.timeScale = 0f;
         if (showCursor) { Cursor.lockState = CursorLockMode.None; Cursor.visible = true; }
+
+        Debug.Log("[KeypadPuzzle] Puzzle abierto."); // 🧠 depuración
     }
+
 
     void GenerateNewCode()
     {
@@ -155,12 +162,18 @@ public class KeypadPuzzle : MonoBehaviour
     void Close(bool solved)
     {
         _open = false;
+        if (canvas) canvas.gameObject.SetActive(false);
         if (pauseGameTime) Time.timeScale = 1f;
         if (showCursor) { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
-        if (solved) OnSolved?.Invoke();
-        else OnClosed?.Invoke();
+
+        // 🔹 Elimina esta línea:
+        // if (solved) OnSolved?.Invoke();
+
+        if (!solved) OnClosed?.Invoke();
         Destroy(gameObject);
     }
+
+
 
     // === AUTO-BIND ===
     void AutoBindIfEmpty()

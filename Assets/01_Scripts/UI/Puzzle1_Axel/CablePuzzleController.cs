@@ -1,12 +1,11 @@
-﻿// 01_Scripts/UI/CablePuzzleController.cs
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class CablePuzzleController : MonoBehaviour
+public class CablePuzzleController : MonoBehaviour, IPuzzle
 {
     [Header("Refs UI")]
     public Canvas canvas;
@@ -35,10 +34,35 @@ public class CablePuzzleController : MonoBehaviour
 
     private readonly Dictionary<int, Image> lineByLeft = new();
 
-    // Runtime
     private int? pendingLeft = null;
     private Dictionary<int, int> currentPairs = new();
     private PlayerMotor3D player;
+
+    // === NUEVO ===
+    private EnergyNodeInteractable targetNode;
+    public Action OnSolved { get; set; }
+    public Action OnClosed { get; set; }
+
+    public void SetTargetNode(EnergyNodeInteractable node) => targetNode = node;
+
+    public void Open()
+    {
+        if (!player)
+            player = FindObjectOfType<PlayerMotor3D>();
+
+        Open(player, () =>
+        {
+            OnSolved?.Invoke();
+            if (targetNode != null)
+            {
+                var method = targetNode.GetType().GetMethod("SetState",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                method?.Invoke(targetNode, new object[] { true });
+            }
+        });
+    }
+    // === FIN NUEVO ===
+
     private Action onSolved;
 
     void Awake()
@@ -67,7 +91,6 @@ public class CablePuzzleController : MonoBehaviour
     {
         player = playerMotor;
         onSolved = onSolvedCallback;
-
         pendingLeft = null;
         currentPairs.Clear();
         SetBulb(false);
@@ -95,6 +118,8 @@ public class CablePuzzleController : MonoBehaviour
         if (player) player.inputEnabled = true;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        OnClosed?.Invoke(); // ⚙️ disparar evento de cierre
     }
 
     void OnLeftClick(int leftIndex)

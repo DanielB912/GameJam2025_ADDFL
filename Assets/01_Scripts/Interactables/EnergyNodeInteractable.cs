@@ -9,22 +9,22 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
     [TextArea] public string prompt = "Activar nodo de energía";
 
     [Header("Puzzle (opcional)")]
-    public CablePuzzleController puzzle;
+    public MonoBehaviour puzzleBehaviour; // 👈 Puede ser cualquier prefab que implemente IPuzzle
+    private IPuzzle puzzle;
     public bool oneShot = true;
 
     [Header("Feedback visual y sonoro")]
-    public Light linkedLight;                     // Luz principal
-    public List<Light> linkedLightsExtra = new(); // ✅ Varias luces adicionales
-    public List<Renderer> linkedRenderers = new(); // ✅ Opcional, para materiales con emisión
+    public Light linkedLight;
+    public List<Light> linkedLightsExtra = new();
+    public List<Renderer> linkedRenderers = new();
     public Color offColor = Color.gray;
     public Color onColor = new Color(0.2f, 0.8f, 1f);
-    public AudioClip solvedClip;                 // ✅ Clip directo
-    public UnityEvent onSolved;                  // Eventos extra (abrir puertas, etc.)
+    public AudioClip solvedClip;
+    public UnityEvent onSolved;
 
     [Header("Estado")]
     [SerializeField] private bool isOn = false;
 
-    // Cache
     private Renderer rend;
     private MaterialPropertyBlock mpb;
     private PlayerMotor3D player;
@@ -51,7 +51,7 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
     public string GetPrompt()
     {
         if (oneShot && isOn) return "";
-        if (puzzle && !isOn) return "Iniciar puzzle";
+        if (puzzleBehaviour != null && !isOn) return "Iniciar puzzle";
         return isOn ? "E — Apagar nodo" : prompt;
     }
 
@@ -59,10 +59,16 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
     {
         if (oneShot && isOn) return;
 
-        if (puzzle)
+        // 👇 Intentamos obtener la referencia de IPuzzle solo si no está cacheada
+        if (puzzle == null && puzzleBehaviour != null)
+            puzzle = puzzleBehaviour as IPuzzle;
+
+        if (puzzle != null)
         {
             if (!player) player = FindObjectOfType<PlayerMotor3D>();
-            puzzle.Open(player, OnPuzzleSolved);
+            puzzle.SetTargetNode(this);
+            puzzle.Open();
+            puzzle.OnSolved += OnPuzzleSolved;
         }
         else
         {
@@ -80,59 +86,44 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
 
     private void SetState(bool on)
     {
-        // ✅ Evita apagado: solo se puede activar, nunca desactivar
         if (isOn && !on) return;
 
         isOn = on;
         ApplySolvedEffectsIfNeeded(on);
         UpdateVisual();
         OnNodeToggled?.Invoke(this, isOn);
+
+        if (on)
+        {
+            MiniMapNodes minimap = FindObjectOfType<MiniMapNodes>();
+            if (minimap != null)
+            {
+                minimap.SetNodeColor(transform, Color.gray);
+            }
+        }
     }
 
     private void ApplySolvedEffectsIfNeeded(bool on)
     {
-        // 🔹 Luz principal
         if (linkedLight)
         {
-            if (on) linkedLight.enabled = true; // nunca la apaga
+            if (on) linkedLight.enabled = true;
             var fade = linkedLight.GetComponentInParent<LightFadeIn>();
             if (on && fade) fade.TurnOn();
         }
 
-        // 🔹 Luces adicionales
         if (linkedLightsExtra != null && linkedLightsExtra.Count > 0)
         {
             foreach (var l in linkedLightsExtra)
             {
                 if (!l) continue;
-                if (on) l.enabled = true; // nunca las apaga
+                if (on) l.enabled = true;
 
                 var fade = l.GetComponentInParent<LightFadeIn>();
                 if (on && fade) fade.TurnOn();
             }
         }
 
-        // 🔹 Materiales emisivos (opcional)
-        /*
-        if (linkedRenderers != null && linkedRenderers.Count > 0)
-        {
-            foreach (var r in linkedRenderers)
-            {
-                if (!r) continue;
-                var mats = r.materials;
-                foreach (var m in mats)
-                {
-                    if (m.HasProperty("_EmissionColor"))
-                    {
-                        m.EnableKeyword("_EMISSION");
-                        m.SetColor("_EmissionColor", on ? onColor * 2f : Color.black);
-                    }
-                }
-            }
-        }
-        */
-
-        // 🔹 Sonido
         if (on && solvedClip)
             audioSrc.PlayOneShot(solvedClip);
     }

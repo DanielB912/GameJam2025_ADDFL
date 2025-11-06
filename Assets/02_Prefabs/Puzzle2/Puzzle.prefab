@@ -494,11 +494,11 @@ GameObject:
   m_Component:
   - component: {fileID: 5113763798892881020}
   - component: {fileID: 7052415012948598959}
+  - component: {fileID: 9187970371609019188}
   - component: {fileID: 4362574393104750946}
   - component: {fileID: 8633027844761800923}
   - component: {fileID: 3181426795521055871}
   - component: {fileID: 816750574223205480}
-  - component: {fileID: 9187970371609019188}
   m_Layer: 5
   m_Name: Puzzle
   m_TagString: Untagged
@@ -543,12 +543,45 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 1
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &9187970371609019188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537922228262122831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5182f442f940874883001684f02d333, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetCodeText: {fileID: 8132686611504317031}
+  inputText: {fileID: 7734552664140712448}
+  statusText: {fileID: 6827854139042567303}
+  digitButtons:
+  - {fileID: 1550035168761086882}
+  - {fileID: 163841501101460706}
+  - {fileID: 6028884820470861132}
+  - {fileID: 2789283354506801486}
+  - {fileID: 5099451224776632045}
+  - {fileID: 5276464881072193355}
+  - {fileID: 334679646431143237}
+  - {fileID: 6745334551717291651}
+  - {fileID: 5803096974888398695}
+  - {fileID: 1616628264615107671}
+  btnClear: {fileID: 3893863774090310297}
+  btnSubmit: {fileID: 1529220465651057070}
+  codeLength: 5
+  useFixedCode: 1
+  fixedCode: 32568
+  pauseGameTime: 1
+  showCursor: 1
 --- !u!114 &4362574393104750946
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -627,39 +660,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &9187970371609019188
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1537922228262122831}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5182f442f940874883001684f02d333, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetCodeText: {fileID: 8132686611504317031}
-  inputText: {fileID: 7734552664140712448}
-  statusText: {fileID: 6827854139042567303}
-  digitButtons:
-  - {fileID: 1550035168761086882}
-  - {fileID: 163841501101460706}
-  - {fileID: 6028884820470861132}
-  - {fileID: 2789283354506801486}
-  - {fileID: 5099451224776632045}
-  - {fileID: 5276464881072193355}
-  - {fileID: 334679646431143237}
-  - {fileID: 6745334551717291651}
-  - {fileID: 5803096974888398695}
-  - {fileID: 1616628264615107671}
-  btnClear: {fileID: 3893863774090310297}
-  btnSubmit: {fileID: 1529220465651057070}
-  codeLength: 5
-  useFixedCode: 1
-  fixedCode: 32568
-  pauseGameTime: 1
-  showCursor: 1
 --- !u!1 &2431166975150156338
 GameObject:
   m_ObjectHideFlags: 0
@@ -1589,7 +1589,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: x
+  m_text: X
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3237,7 +3237,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u2713\n"
+  m_text: 'OK
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
