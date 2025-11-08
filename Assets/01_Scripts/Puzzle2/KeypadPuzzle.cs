@@ -71,7 +71,6 @@ public class KeypadPuzzle : MonoBehaviour, IPuzzle
         Debug.Log("[KeypadPuzzle] Puzzle abierto."); // 🧠 depuración
     }
 
-
     void GenerateNewCode()
     {
         if (useFixedCode) _targetCode = fixedCode;
@@ -147,6 +146,14 @@ public class KeypadPuzzle : MonoBehaviour, IPuzzle
         SetStatus($"<color=#FF6C6C>{msg}</color>");
         _input.Clear();
         RefreshUI();
+
+        // 💥 Daño al jugador por fallo
+        PlayerHealth playerHealth = FindObjectOfType<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            playerHealth.TakeDamage(1); // ajusta el daño si quieres
+            Debug.Log("❌ Fallo en Keypad: jugador pierde 10 de vida.");
+        }
     }
 
     void RefreshUI()
@@ -172,8 +179,6 @@ public class KeypadPuzzle : MonoBehaviour, IPuzzle
         if (!solved) OnClosed?.Invoke();
         Destroy(gameObject);
     }
-
-
 
     // === AUTO-BIND ===
     void AutoBindIfEmpty()

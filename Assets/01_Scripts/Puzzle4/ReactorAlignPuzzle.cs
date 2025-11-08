@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -31,34 +31,32 @@ public class ReactorAlignPuzzle : MonoBehaviour, IPuzzle
     [Tooltip("Exigir TODAS bloqueadas para ganar")]
     public bool requireAll = true;
 
-    [Header("Movimiento automático")]
+    [Header("Movimiento automÃ¡tico")]
     [Tooltip("Velocidad del ruido")]
     public float driftSpeed = 0.8f;
     [Tooltip("Fuerza del ruido")]
     public float driftStrength = 0.35f;
 
     [Header("Inicio")]
-    [Tooltip("¿Randomizar valores al abrir?")]
+    [Tooltip("Â¿Randomizar valores al abrir?")]
     public bool randomizeOnOpen = true;
     [Tooltip("Rango aleatorio inicial [min,max]")]
     public Vector2 startRange = new Vector2(0.15f, 0.85f);
     [Tooltip("Barras que empiezan ya alineadas (0 = ninguna)")]
     public int startAlignedCount = 2;
 
-    [Header("Pausa/cursor mientras está abierto")]
+    [Header("Pausa/cursor mientras estÃ¡ abierto")]
     public bool pauseGameTime = true;
     public bool showCursor = true;
 
     public Action OnSolved { get; set; }
     public Action OnClosed { get; set; }
 
-
     bool _running;
 
     void Awake()
     {
         if (btnClose) btnClose.onClick.AddListener(() => Close(false));
-        // Inicialización básica (colores apagados/ocultar iconos)
         foreach (var c in channels)
         {
             if (c == null || c.slider == null) continue;
@@ -67,7 +65,6 @@ public class ReactorAlignPuzzle : MonoBehaviour, IPuzzle
             c.locked = false;
             c.holdTimer = 0f;
             c.noiseSeed = UnityEngine.Random.value * 10f;
-            // asegurar configuración de slider
             c.slider.direction = Slider.Direction.BottomToTop;
             c.slider.minValue = 0f; c.slider.maxValue = 1f;
         }
@@ -81,20 +78,19 @@ public class ReactorAlignPuzzle : MonoBehaviour, IPuzzle
 
         if (randomizeOnOpen)
         {
-            // 1) Random en rango
             foreach (var c in channels)
             {
                 if (c?.slider == null) continue;
                 c.slider.value = UnityEngine.Random.Range(startRange.x, startRange.y);
             }
-            // 2) Forzar algunas alineadas al centro de arranque (si quieres)
+
             int n = Mathf.Clamp(startAlignedCount, 0, channels.Length);
             for (int i = 0; i < n; i++)
             {
                 var c = channels[i];
                 if (c?.slider == null) continue;
                 c.slider.value = 0.5f + UnityEngine.Random.Range(-tolerance * 0.35f, tolerance * 0.35f);
-                c.holdTimer = lockTime; // quedarán bloqueadas en el primer Update
+                c.holdTimer = lockTime;
             }
         }
 
@@ -122,36 +118,42 @@ public class ReactorAlignPuzzle : MonoBehaviour, IPuzzle
             var c = channels[i];
             if (c == null || c.slider == null) continue;
 
-            // Si ya está bloqueado, contamos y seguimos
             if (c.locked) { lockedCount++; continue; }
 
-            // Aplicar DRIFT (ruido) para que se mueva solo
-            float n = Mathf.PerlinNoise(t * driftSpeed, c.noiseSeed) - 0.5f; // [-0.5, 0.5]
+            float n = Mathf.PerlinNoise(t * driftSpeed, c.noiseSeed) - 0.5f;
             c.slider.value = Mathf.Clamp01(c.slider.value + n * driftStrength * dt);
 
-            // ¿cerca del centro?
             float dist = Mathf.Abs(c.slider.value - 0.5f);
             if (dist <= tolerance)
             {
                 c.holdTimer += dt;
                 if (c.holdTimer >= lockTime)
                 {
-                    // Bloquea este canal
                     c.locked = true;
                     lockedCount++;
-                    if (c.fill) c.fill.color = new Color(1f, 0.95f, 0.3f, 0.95f); // amarillo fuerte
+                    if (c.fill) c.fill.color = new Color(1f, 0.95f, 0.3f, 0.95f);
                     if (c.lockIcon) c.lockIcon.enabled = true;
                 }
             }
             else
             {
+                // Si estaba intentando alinear y se sale del rango â†’ daÃ±o al jugador
+                if (c.holdTimer > 0f)
+                {
+                    PlayerHealth playerHealth = FindObjectOfType<PlayerHealth>();
+                    if (playerHealth != null)
+                    {
+                        playerHealth.TakeDamage(1); // daÃ±o leve por fallo
+                        Debug.Log("âŒ ReactorAlign: canal fuera de rango, jugador pierde 5 de vida.");
+                    }
+                }
+
                 c.holdTimer = 0f;
             }
         }
 
         UpdateStatus(lockedCount, channels.Length);
 
-        // ¿Terminado?
         if ((requireAll && lockedCount == channels.Length) ||
             (!requireAll && lockedCount >= Mathf.CeilToInt(channels.Length * 0.5f)))
         {
@@ -170,16 +172,19 @@ public class ReactorAlignPuzzle : MonoBehaviour, IPuzzle
         OnSolved?.Invoke();
         Destroy(gameObject);
     }
+
     public void SetTargetNode(EnergyNodeInteractable node)
     {
         targetNode = node;
     }
+
     void Close(bool solved)
     {
         _running = false;
         if (solved) OnSolved?.Invoke(); else OnClosed?.Invoke();
         Destroy(gameObject);
     }
+
     public void Open()
     {
         gameObject.SetActive(true);
@@ -187,5 +192,4 @@ public class ReactorAlignPuzzle : MonoBehaviour, IPuzzle
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
-
 }

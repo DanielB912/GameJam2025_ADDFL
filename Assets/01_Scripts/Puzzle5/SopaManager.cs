@@ -30,9 +30,9 @@ public class SopaManager : MonoBehaviour
         textoActual.text = "";
         textoError.text = "";
     }
+
     void Update()
     {
-        // Permitir borrar con tecla Backspace
         if (Input.GetKeyDown(KeyCode.Backspace))
         {
             BorrarUltimaLetra();
@@ -108,7 +108,6 @@ public class SopaManager : MonoBehaviour
                 palabrasEncontradas.Add(palabra);
                 encontrada = true;
 
-                // Marcar palabra en la UI
                 textoPalabrasUI[palabra].color = Color.green;
 
                 foreach (Button b in selectedButtons)
@@ -132,6 +131,14 @@ public class SopaManager : MonoBehaviour
             textoError.text = "❌ Palabra incorrecta!";
             foreach (Button b in selectedButtons)
                 b.image.color = Color.red;
+
+            // 💥 Daño al jugador por error
+            PlayerHealth playerHealth = FindObjectOfType<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(1); // daño configurable
+                Debug.Log("❌ SopaManager: jugador pierde 10 de vida por error.");
+            }
 
             Invoke(nameof(LimpiarSeleccion), 0.8f);
         }
@@ -163,22 +170,15 @@ public class SopaManager : MonoBehaviour
         Cursor.visible = false;
         Time.timeScale = 1f;
     }
+
     void BorrarUltimaLetra()
     {
         if (selectedButtons.Count > 0)
         {
-            // Última letra seleccionada
             Button ultima = selectedButtons[selectedButtons.Count - 1];
-
-            // Restaurar su color
             ultima.image.color = Color.white;
-
-            // Quitarla de la lista
             selectedButtons.RemoveAt(selectedButtons.Count - 1);
-
-            // Actualizar el texto mostrado
             ActualizarTextoActual();
         }
     }
-
 }
