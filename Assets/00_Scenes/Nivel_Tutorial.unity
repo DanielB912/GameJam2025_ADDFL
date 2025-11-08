@@ -7074,10 +7074,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7605d6dbbdb620944bd4bcc71830b273, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  message: 'Usa WASD para moverte y el mouse para mirar alrededor.
+  message: 'Usa WASD para moverte y click derecho del mouse para mirar alrededor.
 
-    Con Shift
-    corres'
+    Con
+    Shift corres'
   displayTime: 6
 --- !u!65 &1773162388
 BoxCollider:
