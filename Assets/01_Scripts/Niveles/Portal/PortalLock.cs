@@ -1,11 +1,11 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 [DefaultExecutionOrder(-100)] // se inicializa antes que el UI
 public class PortalLock : MonoBehaviour
 {
     [Header("Portal a habilitar")]
-    public GameObject portalRoot;              // ra�z visual del portal (puede ser hijo)
+    public GameObject portalRoot;              // raíz visual del portal (puede ser hijo)
     public Collider portalCollider;            // trigger/collider del portal (opcional)
     public Renderer[] portalRenderers;         // VFX/meshes a mostrar/ocultar (opcional)
 
@@ -25,7 +25,7 @@ public class PortalLock : MonoBehaviour
     public int totalNodes = 0;
     private bool unlockedPlayed = false;
 
-    // UI/otros pueden engancharse aqu�
+    // UI/otros pueden engancharse aquí
     public System.Action<int, int> OnProgressChanged;
     public System.Action OnUnlocked;           // notifica cuando se desbloquea
 
@@ -50,7 +50,7 @@ public class PortalLock : MonoBehaviour
         if (requiredCount < 0 || requiredCount > totalNodes)
             requiredCount = totalNodes;
 
-        // Suscripci�n + conteo inicial
+        // Suscripción + conteo inicial
         currentOnCount = 0;
         foreach (var n in nodes)
         {
@@ -69,6 +69,31 @@ public class PortalLock : MonoBehaviour
     {
         foreach (var n in nodes)
             if (n) n.OnNodeToggled -= OnNodeToggled;
+    }
+    // 🔋 Permite que los nodos reporten su activación directamente
+    public void ReportNodeActivated(EnergyNodeInteractable node)
+    {
+        if (node == null) return;
+        if (nodes == null || nodes.Count == 0) return;
+
+        // Si el nodo no estaba en la lista, agrégalo
+        if (!nodes.Contains(node))
+            nodes.Add(node);
+
+        // Solo sumar si aún no estaba activado
+        if (!node.IsOn)
+        {
+            currentOnCount++;
+            node.UpdateVisual(); // asegura color visual correcto
+            OnProgressChanged?.Invoke(currentOnCount, requiredCount);
+
+            if (currentOnCount >= requiredCount)
+            {
+                SetPortalUnlocked(true, playSfx: true);
+            }
+        }
+
+        Debug.Log($"🔋 Nodo reportado: {currentOnCount}/{requiredCount}");
     }
 
     private void OnNodeToggled(EnergyNodeInteractable node, bool isOn)
@@ -99,7 +124,7 @@ public class PortalLock : MonoBehaviour
             else if (unlockSfxClip)
                 AudioSource.PlayClipAtPoint(unlockSfxClip, transform.position, unlockSfxVolume);
 
-            // Evento para UI o l�gica extra
+            // Evento para UI o lógica extra
             OnUnlocked?.Invoke();
         }
     }

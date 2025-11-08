@@ -9,7 +9,7 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
     [TextArea] public string prompt = "Activar nodo de energía";
 
     [Header("Puzzle (opcional)")]
-    public MonoBehaviour puzzleBehaviour; // 👈 Puede ser cualquier prefab que implemente IPuzzle
+    public MonoBehaviour puzzleBehaviour; // Puede ser cualquier prefab que implemente IPuzzle
     private IPuzzle puzzle;
     public bool oneShot = true;
 
@@ -24,6 +24,7 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
 
     [Header("Estado")]
     [SerializeField] private bool isOn = false;
+    private bool activated = false; // ✅ Nuevo: evita doble activación
 
     private Renderer rend;
     private MaterialPropertyBlock mpb;
@@ -59,7 +60,6 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
     {
         if (oneShot && isOn) return;
 
-        // 👇 Intentamos obtener la referencia de IPuzzle solo si no está cacheada
         if (puzzle == null && puzzleBehaviour != null)
             puzzle = puzzleBehaviour as IPuzzle;
 
@@ -79,9 +79,20 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
 
     private void OnPuzzleSolved()
     {
+        if (activated) return; // ✅ evita que se dispare más de una vez
+        activated = true;
+
         Debug.Log("[EnergyNode] Puzzle solved — ejecutando efectos.");
         SetState(true);
         onSolved?.Invoke();
+
+        // 🔹 Reportar al PortalLock que un nodo fue activado
+        var portalLock = FindObjectOfType<PortalLock>();
+        if (portalLock != null)
+        {
+            portalLock.ReportNodeActivated(this);
+            Debug.Log("🔋 Nodo activado y reportado al PortalLock");
+        }
     }
 
     private void SetState(bool on)
@@ -97,9 +108,7 @@ public class EnergyNodeInteractable : MonoBehaviour, IInteractable
         {
             MiniMapNodes minimap = FindObjectOfType<MiniMapNodes>();
             if (minimap != null)
-            {
                 minimap.SetNodeColor(transform, Color.gray);
-            }
         }
     }
 
