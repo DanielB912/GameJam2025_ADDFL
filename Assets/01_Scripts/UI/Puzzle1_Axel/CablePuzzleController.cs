@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class CablePuzzleController : MonoBehaviour, IPuzzle
+public class CablePuzzleController : MonoBehaviour, IPuzzle, IInteractable
 {
     [Header("Refs UI")]
     public Canvas canvas;
@@ -188,6 +188,14 @@ public class CablePuzzleController : MonoBehaviour, IPuzzle
             // ❌ conexión incorrecta: feedback y NO se dibuja línea
             StartCoroutine(FlashWrong(rightSockets[rightIndex]));
             ClearLeftHighlights();
+
+            // 💥 Daño al jugador por error
+            PlayerHealth playerHealth = FindObjectOfType<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(1); // daño configurable
+                Debug.Log("❌ Conexión incorrecta: jugador pierde 10 de vida.");
+            }
         }
     }
 
@@ -342,4 +350,19 @@ public class CablePuzzleController : MonoBehaviour, IPuzzle
         c.a = a;
         return c;
     }
+    // === Implementación de IInteractable ===
+    public string GetPrompt()
+    {
+        return "Conectar cables (E)";
+    }
+
+    public void Interact()
+    {
+        // Lógica para abrir el puzzle
+        if (!IsOpen)
+        {
+            Open();
+        }
+    }
+
 }

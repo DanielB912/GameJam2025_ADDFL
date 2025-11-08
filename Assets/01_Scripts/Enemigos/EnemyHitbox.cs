@@ -32,9 +32,15 @@ public class EnemyHitbox : MonoBehaviour
 
         Debug.Log($"[EnemyHitbox] Player hit by {owner?.name ?? "Unknown enemy"}");
 
-        // ⚠️ Aquí irá el daño al jugador cuando se implemente
-        // PlayerHealth.TakeDamage(damage);
+        // 🩸 Buscar componente PlayerHealth en el jugador
+        PlayerHealth playerHealth = other.GetComponentInParent<PlayerHealth>();
+        if (playerHealth != null && playerHealth.IsAlive())
+        {
+            playerHealth.TakeDamage(damage);
+            Debug.Log($"[EnemyHitbox] Hizo daño: {damage}");
+        }
 
+        // 💥 Destruir enemigo si está configurado así
         if (destroyOnHit)
         {
             if (owner != null)

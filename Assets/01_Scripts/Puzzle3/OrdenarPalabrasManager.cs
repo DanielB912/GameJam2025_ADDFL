@@ -20,7 +20,6 @@ public class OrdenarPalabrasManager : MonoBehaviour
     private HashSet<string> palabrasCompletadas = new HashSet<string>();
     private bool puzzleCompletado = false;
 
-    // 🟢 Se ejecuta incluso si el puzzle empieza desactivado
     void Awake()
     {
         if (letrasContainer == null)
@@ -42,7 +41,6 @@ public class OrdenarPalabrasManager : MonoBehaviour
         letraBase.SetActive(false);
     }
 
-    // 🟢 Se ejecuta cada vez que el puzzle se activa (por ejemplo, al presionar E)
     void OnEnable()
     {
         if (!gameObject.activeInHierarchy) return;
@@ -51,7 +49,6 @@ public class OrdenarPalabrasManager : MonoBehaviour
         ReiniciarPuzzle();
     }
 
-    // 🔄 Reinicia todos los valores del puzzle
     void ReiniciarPuzzle()
     {
         palabraActualIndex = 0;
@@ -61,7 +58,6 @@ public class OrdenarPalabrasManager : MonoBehaviour
         palabrasCompletadas.Clear();
         puzzleCompletado = false;
 
-        // Asegurar que la base está bien configurada
         if (letraBase == null)
         {
             letraBase = letrasContainer.GetComponentInChildren<Button>(true)?.gameObject;
@@ -80,15 +76,13 @@ public class OrdenarPalabrasManager : MonoBehaviour
     {
         Debug.Log("🧩 Cargando nueva palabra...");
 
-        // Si ya se completaron todas las palabras
         if (palabraActualIndex >= palabrasCorrectas.Count)
         {
             PuzzleCompletado();
-            StartCoroutine(CerrarDespuesDeRetraso(1.5f)); // 🔹 cierra automáticamente al terminar
+            StartCoroutine(CerrarDespuesDeRetraso(1.5f));
             return;
         }
 
-        // ✅ Limpiar letras anteriores sin destruir la base
         foreach (Transform child in letrasContainer)
         {
             if (child.gameObject != letraBase)
@@ -178,6 +172,15 @@ public class OrdenarPalabrasManager : MonoBehaviour
         {
             textoMensaje.color = Color.red;
             textoMensaje.text = "Incorrecto. Intenta de nuevo!";
+
+            // 💥 Daño al jugador por error
+            PlayerHealth playerHealth = FindObjectOfType<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(1); // ajusta el valor si quieres
+                Debug.Log("❌ OrdenarPalabras: jugador pierde 10 de vida por error.");
+            }
+
             StartCoroutine(ReintentarPalabraConRetraso(1f));
         }
     }
@@ -207,7 +210,6 @@ public class OrdenarPalabrasManager : MonoBehaviour
         textoMensaje.color = Color.yellow;
         textoMensaje.text = "¡Todas las palabras completadas!";
 
-        // Cambiar color del cubo
         if (cuboRelacionado != null)
         {
             Renderer r = cuboRelacionado.GetComponent<Renderer>();
