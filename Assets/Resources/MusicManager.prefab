@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6085984652756940288
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 942567816381400245}
+  - component: {fileID: 1925554785370319553}
+  m_Layer: 0
+  m_Name: MusicManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &942567816381400245
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085984652756940288}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.7342, y: 5.209798, z: 14.695563}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1925554785370319553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085984652756940288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25d4e8ef40413ed44bd0882e58d4d06b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tracks:
+  - sceneName: MainMenu
+    clip: {fileID: 8300000, guid: 8461dfb66621f024f955d1262ae4da1c, type: 3}
+    volume: 0.469
+  - sceneName: Nivel_1
+    clip: {fileID: 8300000, guid: f14fd24631cc9ac488e21f284d0013cf, type: 3}
+    volume: 0.152
+  - sceneName: Nivel_2
+    clip: {fileID: 8300000, guid: 30024a8481781f046821cb9138ab62c9, type: 3}
+    volume: 0.407
+  - sceneName: Nivel_3
+    clip: {fileID: 8300000, guid: 25179b6deba9eea47984cdc262fe6cf9, type: 3}
+    volume: 0.444
+  - sceneName: Nivel_4
+    clip: {fileID: 8300000, guid: e517bfd3668df19468b18f7c5170bb2d, type: 3}
+    volume: 0.541
+  - sceneName: Nivel_5
+    clip: {fileID: 8300000, guid: 222a704ac9df30c46a8cfe2cf7b23c4f, type: 3}
+    volume: 0.481
+  - sceneName: EndScene
+    clip: {fileID: 8300000, guid: eb532c18da629f7418cb1f7df3b26dab, type: 3}
+    volume: 0.483
+  - sceneName: Tutorial
+    clip: {fileID: 8300000, guid: 8461dfb66621f024f955d1262ae4da1c, type: 3}
+    volume: 0.585
+  masterVolume: 1
+  crossfadeSeconds: 1.5
+  playOnSceneLoad: 1
